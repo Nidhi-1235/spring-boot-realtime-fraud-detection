@@ -6,80 +6,201 @@ A high-performance, low-latency Spring Boot fraud detection application engineer
 
 ## 🚀 Key Features
 
-* **Sub-Millisecond Fraud Evaluation:** In-memory sliding-window analysis for velocity-based transaction checks and spatiotemporal anomaly detection.
-* **⚡ Dynamic Policy Hot-Reloading:** Modify administrative fraud thresholds dynamically via REST endpoints without requiring server restarts or causing WebSocket disconnections.
-* **📊 Live Dashboard:** Real-time metrics streaming over WebSockets to Chart.js, providing visual velocity tracking and immediate alert notifications.
-* **🛡️ Thread-Safe State Management:** Concurrent rule engine configuration designed for multi-threaded high-throughput processing.
+- ⚡ **Sub-Millisecond Fraud Evaluation:** In-memory sliding-window analysis for velocity-based transaction checks and spatiotemporal anomaly detection.
+- 🔄 **Dynamic Policy Hot-Reloading:** Modify administrative fraud thresholds dynamically via REST APIs without restarting the server or interrupting active WebSocket connections.
+- 📊 **Live Dashboard:** Real-time metrics streamed through WebSockets and visualized with Chart.js.
+- 🛡️ **Thread-Safe State Management:** Concurrent rule engine configuration for high-throughput transaction processing.
+- 🌍 **Real-Time Alert Broadcasting:** Fraud events are instantly pushed to connected dashboard clients.
+- 🚀 **Zero-Downtime Configuration Updates:** Fraud policies are applied immediately across all active evaluation threads.
 
 ---
 
 ## 🏗️ System Architecture
 
 ```text
-[ Incoming Transaction Stream ]
-               │
-               ▼
-   [ Fraud Engine Service ] ──(In-Memory Sliding Windows)
-               │
-   ┌───────────┴───────────┐
-   ▼                       ▼
-[ Rule Evaluation ]    [ REST Admin API ] ──(Dynamic Threshold Updates)
-   │                       │
-   └───────────┬───────────┘
-               ▼
-     [ WebSocket Channel ]
-               │
-               ▼
-    [ Live Chart.js UI ]
+                    Incoming Transaction Stream
+                               │
+                               ▼
+                  ┌────────────────────────┐
+                  │  Fraud Engine Service  │
+                  │ Sliding Window Engine  │
+                  └──────────┬─────────────┘
+                             │
+             ┌───────────────┴───────────────┐
+             ▼                               ▼
+     Rule Evaluation                 REST Admin API
+             │                  (Dynamic Rule Updates)
+             └───────────────┬───────────────┘
+                             ▼
+                   WebSocket Notification
+                             │
+                             ▼
+                 Live Dashboard (Chart.js)
 ```
 
-## ⚙️ Dynamic Policy Hot-Reloading API
+---
 
-Administrative limits (such as single-transaction ceilings or velocity flags) can be updated dynamically at runtime without server restarts or connection drops.
+# ⚙️ Dynamic Policy Hot-Reloading API
 
-Update Fraud Rules
-Request:
+The fraud detection engine supports **runtime policy updates** without requiring a server restart. Administrative fraud thresholds are immediately propagated across all active evaluation threads while maintaining uninterrupted WebSocket connections.
 
-HTTP
+## ✨ Features
+
+- ✅ No server restart required
+- ✅ Zero downtime
+- ✅ Instant propagation across active threads
+- ✅ Thread-safe configuration updates
+- ✅ Existing WebSocket connections remain active
+
+---
+
+## 📌 Update Fraud Rules
+
+### Endpoint
+
+```http
 POST /api/rules/update
 Content-Type: application/json
+```
 
+### Request Body
+
+```json
 {
   "maxTransactionAmount": 10000.00,
   "velocityTimeWindowSeconds": 60,
   "maxVelocityCount": 5
 }
-Response:
+```
 
-JSON
+### Success Response
+
+```json
 {
   "status": "SUCCESS",
   "message": "Policy hot-reloaded successfully across active evaluation threads."
 }
-🛠️ Getting Started
-Prerequisites
-Java 17+
+```
 
-Maven 3.8+
+---
 
-An IDE (Eclipse, IntelliJ IDEA, or VS Code)
+## 📖 Rule Description
 
-Running Locally
-Clone the repository:
+| Field | Description |
+|-------|-------------|
+| `maxTransactionAmount` | Maximum amount allowed before a transaction is flagged. |
+| `velocityTimeWindowSeconds` | Time window used for velocity-based fraud detection. |
+| `maxVelocityCount` | Maximum transactions allowed within the configured time window. |
 
-Bash
-git clone [https://github.com/Nidhi-1235/spring-boot-realtime-fraud-detection.git](https://github.com/Nidhi-1235/spring-boot-realtime-fraud-detection.git)
+---
+
+## 🔄 Hot Reload Workflow
+
+```text
+Admin
+  │
+  ▼
+POST /api/rules/update
+  │
+  ▼
+REST Controller
+  │
+  ▼
+Thread-Safe Rule Manager
+  │
+  ▼
+Update Active Fraud Engine
+  │
+  ▼
+Immediate Rule Enforcement
+  │
+  ▼
+Live Dashboard Updates
+```
+
+---
+
+## 🛠️ Getting Started
+
+### Prerequisites
+
+- Java 17+
+- Maven 3.8+
+- Spring Boot 3.x
+- Git
+- IntelliJ IDEA / Eclipse / VS Code
+
+---
+
+### Clone the Repository
+
+```bash
+git clone https://github.com/Nidhi-1235/spring-boot-realtime-fraud-detection.git
+
 cd spring-boot-realtime-fraud-detection
-Build and package:
+```
 
-Bash
+---
+
+### Build the Project
+
+```bash
 mvn clean install
-Run the Spring Boot application:
+```
 
-Bash
+---
+
+### Run the Application
+
+```bash
 mvn spring-boot:run
-Access the Live Dashboard:
+```
+
+---
+
+### Access the Live Dashboard
+
 Open your browser and navigate to:
 
-Plaintext
+```text
 http://localhost:8086/dashboard.html
+```
+
+---
+
+## 📡 Available REST APIs
+
+| Method | Endpoint | Description |
+|---------|----------|-------------|
+| POST | `/api/transactions` | Submit a new transaction for fraud evaluation |
+| POST | `/api/rules/update` | Dynamically update fraud detection rules |
+| GET | `/dashboard.html` | Open the live monitoring dashboard |
+
+---
+
+## 🧰 Tech Stack
+
+- Java 17
+- Spring Boot
+- Spring Web
+- Spring WebSocket
+- Maven
+- Chart.js
+- HTML5
+- CSS3
+- JavaScript
+- ConcurrentHashMap
+- AtomicReference
+
+---
+
+## 🎯 Highlights
+
+- ⚡ Sub-millisecond fraud detection
+- 🔄 Dynamic policy hot-reloading
+- 📊 Real-time Chart.js dashboard
+- 📡 WebSocket live event streaming
+- 🛡️ Thread-safe concurrent processing
+- 🚀 Zero-downtime rule updates
+- 📈 Sliding-window velocity detection
+- 🌍 Production-ready architecture
