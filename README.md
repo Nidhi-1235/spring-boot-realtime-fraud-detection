@@ -205,7 +205,7 @@ http://localhost:8086/dashboard.html
 - 📈 Sliding-window velocity detection
 - 🌍 Production-ready architecture
 
-  ## 👩‍💻 Author
+ ## Author
 
 **Nidhi N**
 ---
