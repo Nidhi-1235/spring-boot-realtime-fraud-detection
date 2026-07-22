@@ -31,17 +31,3 @@ A high-performance, low-latency Spring Boot fraud detection application engineer
                │
                ▼
     [ Live Chart.js UI ]
-
-POST /api/rules/update
-Content-Type: application/json
-
-{
-  "maxTransactionAmount": 10000.00,
-  "velocityTimeWindowSeconds": 60,
-  "maxVelocityCount": 5
-}
-
-{
-  "status": "SUCCESS",
-  "message": "Policy hot-reloaded successfully across active evaluation threads."
-}
