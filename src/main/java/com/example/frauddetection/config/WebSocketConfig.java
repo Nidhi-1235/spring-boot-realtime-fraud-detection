@@ -11,15 +11,13 @@ public class WebSocketConfig implements WebSocketConfigurer {
 
     private final SocketHandler socketHandler;
 
-    // Inject your updated SocketHandler directly
     public WebSocketConfig(SocketHandler socketHandler) {
         this.socketHandler = socketHandler;
     }
 
     @Override
     public void registerWebSocketHandlers(WebSocketHandlerRegistry registry) {
-        // This explicitly bridges your backend handler to the frontend's 'ws://localhost:8086/stream'
         registry.addHandler(socketHandler, "/stream")
-                .setAllowedOrigins("*"); 
+                .setAllowedOriginPatterns("*"); // ✅ Better compatibility for Render & HTTPS
     }
 }
