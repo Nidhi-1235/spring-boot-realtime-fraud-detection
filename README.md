@@ -31,3 +31,55 @@ A high-performance, low-latency Spring Boot fraud detection application engineer
                │
                ▼
     [ Live Chart.js UI ]
+```
+
+## ⚙️ Dynamic Policy Hot-Reloading API
+
+Administrative limits (such as single-transaction ceilings or velocity flags) can be updated dynamically at runtime without server restarts or connection drops.
+
+Update Fraud Rules
+Request:
+
+HTTP
+POST /api/rules/update
+Content-Type: application/json
+
+{
+  "maxTransactionAmount": 10000.00,
+  "velocityTimeWindowSeconds": 60,
+  "maxVelocityCount": 5
+}
+Response:
+
+JSON
+{
+  "status": "SUCCESS",
+  "message": "Policy hot-reloaded successfully across active evaluation threads."
+}
+🛠️ Getting Started
+Prerequisites
+Java 17+
+
+Maven 3.8+
+
+An IDE (Eclipse, IntelliJ IDEA, or VS Code)
+
+Running Locally
+Clone the repository:
+
+Bash
+git clone [https://github.com/Nidhi-1235/spring-boot-realtime-fraud-detection.git](https://github.com/Nidhi-1235/spring-boot-realtime-fraud-detection.git)
+cd spring-boot-realtime-fraud-detection
+Build and package:
+
+Bash
+mvn clean install
+Run the Spring Boot application:
+
+Bash
+mvn spring-boot:run
+Access the Live Dashboard:
+Open your browser and navigate to:
+
+Plaintext
+http://localhost:8086/dashboard.html
