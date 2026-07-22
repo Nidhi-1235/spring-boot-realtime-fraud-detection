@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Real-Time Fraud Detection Security Engine</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-900 text-slate-100 min-h-screen font-sans">
+
+    <!-- Header Navigation -->
+    <header class="border-b border-slate-800 bg-slate-950/50 backdrop-blur px-8 py-4 flex justify-between items-center sticky top-0 z-50">
+        <div class="flex items-center gap-3">
+            <div class="w-3 h-3 bg-red-500 rounded-full animate-ping"></div>
+            <h1 class="text-xl font-bold tracking-tight text-white">X-STREAM // <span class="text-red-400 font-mono text-lg">RISK ENGINE</span></h1>
+        </div>
+        <div class="flex gap-4">
+            <button onclick="startSimulation()" class="bg-indigo-600 hover:bg-indigo-500 text-white font-semibold px-5 py-2 rounded-lg transition shadow-lg shadow-indigo-600/20 text-sm">
+                🚀 Trigger Live Stream Simulation
+            </button>
+            <a href="/api/stream/export-logs" download class="bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 font-semibold px-5 py-2 rounded-lg transition text-sm flex items-center gap-2">
+                📥 Download Audit File
+            </a>
+        </div>
+    </header>
+
+    <main class="p-8 max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-8">
+        
+        <!-- Controls & Metrics (Left Column) -->
+        <div class="space-y-8 lg:col-span-1">
+            <!-- Dynamic Heuristic Controls Card -->
+            <div class="bg-slate-950 p-6 rounded-2xl border border-slate-800 shadow-xl">
+                <h2 class="text-md font-semibold text-slate-400 uppercase tracking-wider mb-4">Heuristic Controller Override</h2>
+                <form id="rulesForm" onsubmit="updateRules(event)" class="space-y-6">
+                    <div>
+                        <label class="block text-xs font-mono mb-2 text-slate-400 uppercase">Max Allowed Transaction Amount ($)</label>
+                        <input type="number" id="maxAmount" value="2000" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-white focus:outline-none focus:border-indigo-500 transition font-mono">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-mono mb-2 text-slate-400 uppercase">System Aggression Sensitivity (Multiplier)</label>
+                        <input type="number" step="0.1" id="sensitivity" value="1.0" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-white focus:outline-none focus:border-indigo-500 transition font-mono">
+                    </div>
+                    <button type="submit" class="w-full bg-slate-800 hover:bg-slate-700 text-indigo-400 border border-slate-700 hover:border-indigo-500/50 font-medium py-2.5 rounded-xl transition text-sm">
+                        Deploy Parameter Changes
+                    </button>
+                </form>
+            </div>
+
+            <!-- Threat Level Meter Chart -->
+            <div class="bg-slate-950 p-6 rounded-2xl border border-slate-800 shadow-xl flex flex-col items-center">
+                <div class="w-full flex justify-between items-center mb-2">
+                    <h2 class="text-md font-semibold text-slate-400 uppercase tracking-wider">Threat Volatility Index</h2>
+                    <span id="tviScoreText" class="text-md font-bold font-mono text-emerald-400 transition-colors duration-300">0.0%</span>
+                </div>
+                <p id="tviStatusText" class="text-xs text-slate-500 font-mono w-full text-left mb-4 uppercase tracking-wide">System Stable</p>
+                <div class="w-full max-w-[240px]">
+                    <canvas id="gaugeChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Live Streaming Ledger Feed (Right Columns) -->
+        <div class="lg:col-span-2 flex flex-col h-[calc(100vh-12rem)] min-h-[500px]">
+            <div class="bg-slate-950 rounded-2xl border border-slate-800 shadow-xl flex flex-col h-full overflow-hidden">
+                <div class="p-6 border-b border-slate-800 flex justify-between items-center bg-slate-950/80">
+                    <h2 class="text-md font-semibold text-slate-400 uppercase tracking-wider">Live Transaction Interception Feed</h2>
+                    <span id="streamCounter" class="text-xs bg-slate-900 border border-slate-800 text-indigo-400 font-mono px-2.5 py-1 rounded-full">0 events captured</span>
+                </div>
+                
+                <div id="logFeed" class="p-6 overflow-y-auto space-y-3 flex-1 font-mono text-sm scrollbar-thin scrollbar-thumb-slate-800">
+                    <div class="text-slate-500 text-center py-12 italic">Awaiting connection to real-time risk engine...</div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // --- CHART CONFIGURATION (GAUGE METER) ---
+        const ctx = document.getElementById('gaugeChart').getContext('2d');
+        const gaugeChart = new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                datasets: [{
+                    data: [0, 100],
+                    backgroundColor: ['#10b981', '#1e293b'], // Initial default safe-state color (Emerald green)
+                    borderWidth: 0,
+                    circumference: 180,
+                    rotation: 270
+                }]
+            },
+            options: {
+                plugins: { tooltip: { enabled: false } },
+                cutout: '85%',
+                responsive: true
+            }
+        });
+
+        // Dynamic multi-stage color transformation framework
+        function updateGauge(tviValue) {
+            const scorePercentage = Math.round(tviValue * 100);
+            const scoreText = document.getElementById('tviScoreText');
+            const statusText = document.getElementById('tviStatusText');
+            
+            scoreText.innerText = `${scorePercentage.toFixed(1)}%`;
+            
+            let colorTheme = '#10b981'; // Green fallback
+            if (tviValue >= 0.35 && tviValue < 0.70) {
+                colorTheme = '#f59e0b'; // Amber state
+                scoreText.className = "text-md font-bold font-mono text-amber-400";
+                statusText.innerText = "Anomalous Mutations Detected";
+                statusText.className = "text-xs text-amber-500/80 font-mono w-full text-left mb-4 uppercase tracking-wide";
+            } else if (tviValue >= 0.70) {
+                colorTheme = '#ef4444'; // Red attack state
+                scoreText.className = "text-md font-bold font-mono text-red-400";
+                statusText.innerText = "CRITICAL MULTI-VECTOR ATTACK OUTBREAK";
+                statusText.className = "text-xs text-red-500 font-mono w-full text-left mb-4 uppercase tracking-wide animate-pulse";
+            } else {
+                scoreText.className = "text-md font-bold font-mono text-emerald-400";
+                statusText.innerText = "System Stable";
+                statusText.className = "text-xs text-slate-500 font-mono w-full text-left mb-4 uppercase tracking-wide";
+            }
+
+            gaugeChart.data.datasets[0].backgroundColor = [colorTheme, '#1e293b'];
+            gaugeChart.data.datasets[0].data = [scorePercentage, 100 - scorePercentage];
+            gaugeChart.update();
+        }
+
+        // --- HTTP CONTROL OPERATIONS ---
+        function startSimulation() {
+            fetch('/api/stream/start-simulation')
+                .then(res => res.text())
+                .then(msg => console.log(msg));
+        }
+
+        function updateRules(e) {
+            e.preventDefault();
+            const maxAmount = document.getElementById('maxAmount').value;
+            const sensitivity = document.getElementById('sensitivity').value;
+
+            fetch(`/api/stream/update-rules?maxAmount=${maxAmount}&sensitivity=${sensitivity}`, { method: 'POST' })
+                .then(res => res.text())
+                .then(msg => alert(msg));
+        }
+
+        // --- REAL-TIME WEBSOCKET PIPELINE ---
+        const logFeed = document.getElementById('logFeed');
+        const streamCounter = document.getElementById('streamCounter');
+        let counter = 0;
+
+        // Reactive architecture binding directly back to runtime connection path
+        const socket = new WebSocket(`ws://${window.location.host}/stream`);
+
+        socket.onopen = () => {
+            logFeed.innerHTML = `<div class="text-emerald-400 py-2 border-b border-slate-900/50">🟢 SECURE WEBSOCKET TUNNEL ESTABLISHED SUCCESSFULY</div>`;
+        };
+
+        socket.onmessage = (event) => {
+            const tx = JSON.parse(event.data);
+            
+            if (counter === 0) logFeed.innerHTML = ''; 
+            counter++;
+            streamCounter.innerText = `${counter} events captured`;
+
+            // Evaluate Risk Badging Rules
+            let statusBadge = '';
+            let anomalyBadge = '';
+
+            if (tx.status === 'FRAUD') {
+                statusBadge = `<span class="bg-red-950/60 text-red-400 border border-red-800 text-xs px-2 py-0.5 rounded font-bold">FRAUD</span>`;
+                
+                if (tx.merchantCloneFlag) {
+                    anomalyBadge = `<span class="bg-red-600 text-white text-xs font-bold px-2 py-0.5 rounded animate-pulse">🚨 CRITICAL: CARD CLONE</span>`;
+                } else if (tx.velocityFlag) {
+                    anomalyBadge = `<span class="bg-amber-600 text-white text-xs font-bold px-2 py-0.5 rounded">⚠️ VELOCITY ALERT</span>`;
+                } else {
+                    anomalyBadge = `<span class="bg-slate-800 text-slate-400 text-xs px-2 py-0.5 rounded border border-slate-700">LIMIT EXCEEDED</span>`;
+                }
+            } else {
+                statusBadge = `<span class="bg-emerald-950/60 text-emerald-400 border border-emerald-800 text-xs px-2 py-0.5 rounded font-bold">APPROVED</span>`;
+                anomalyBadge = `<span class="bg-slate-900 text-slate-500 text-xs px-2 py-0.5 rounded">NORMAL</span>`;
+            }
+
+            const logRow = document.createElement('div');
+            logRow.className = `p-3.5 rounded-xl border flex flex-col md:flex-row md:items-center justify-between gap-3 transition-all duration-300 ${tx.status === 'FRAUD' ? 'bg-red-950/10 border-red-900/30 hover:border-red-900/60 shadow-lg shadow-red-950/5' : 'bg-slate-900/40 border-slate-800/60 hover:border-slate-800'}`;
+            
+            logRow.innerHTML = `
+                <div class="flex flex-wrap items-center gap-3">
+                    <span class="text-slate-500 text-xs">${new Date().toLocaleTimeString()}</span>
+                    <span class="text-indigo-400 font-bold">${tx.id}</span>
+                    <span class="text-slate-300 bg-slate-900 border border-slate-800 px-2 py-0.5 rounded text-xs">${tx.user}</span>
+                    <span class="text-slate-300">${tx.location}</span>
+                    <span class="text-slate-100 font-semibold">$${tx.amount.toFixed(2)}</span>
+                </div>
+                <div class="flex items-center gap-3 justify-end">
+                    <span class="text-xs text-slate-400">Risk: <strong class="${tx.status === 'FRAUD' ? 'text-red-400' : 'text-emerald-400'}">${Math.round(tx.riskScore * 100)}%</strong></span>
+                    ${statusBadge}
+                    ${anomalyBadge}
+                </div>
+            `;
+
+            logFeed.insertBefore(logRow, logFeed.firstChild);
+            
+            // --- UPDATE TVI GAUGE ---
+            // Intercepts the new 'tvi' component payload metric if it exists, falling back safely to risk score
+            if (tx.tvi !== undefined) {
+                updateGauge(tx.tvi);
+            } else {
+                updateGauge(tx.riskScore);
+            }
+        };
+
+        socket.onerror = (err) => {
+            logFeed.innerHTML += `<div class="text-red-500 py-2">🔴 PIPELINE ERROR: Connection failed. Check backend runtime execution context.</div>`;
+        };
+    </script>
+</body>
+</html>
