@@ -204,3 +204,8 @@ http://localhost:8086/dashboard.html
 - 🚀 Zero-downtime rule updates
 - 📈 Sliding-window velocity detection
 - 🌍 Production-ready architecture
+
+  ## 👩‍💻 Author
+
+**Nidhi N**
+```
